@@ -1,0 +1,16 @@
+# __TRAIL_TITLE__
+
+## Objetivo
+
+__TRAIL_OBJECTIVE__
+
+## O que será praticado
+
+- item 1
+- item 2
+- item 3
+
+## Executar em modo dev
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ run start:dev
