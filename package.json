@@ -1,0 +1,24 @@
+{
+  "name": "nestjs-training-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo para trilhas práticas de NestJS com Zod, Jest, TAP, GraphQL Supergraph e Bruno.",
+  "workspaces": [
+    "apps/*/*",
+    "packages/*",
+    "packages/*/*"
+  ],
+  "scripts": {
+    "list:trails": "node tools/validate-repo/list-trails.js",
+    "trail:info": "node tools/validate-repo/show-trail-info.js",
+    "check:repo": "node tools/validate-repo/check-repo-structure.js",
+    "generate:trail": "node tools/create-trail/create-trail.js",
+    "lint": "npm run -ws lint --if-present",
+    "test": "npm run -ws test --if-present",
+    "check": "npm run -ws check --if-present"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  }
+}
