@@ -1,3 +1,7 @@
+
+## `docs/TASK.md`
+
+```md
 # Task
 
 Crie uma aplicação NestJS mínima com:
@@ -7,4 +11,14 @@ Crie uma aplicação NestJS mínima com:
 - `AppService`
 - endpoint `GET /health`
 
-O endpoint deve responder um payload simples informando que a app está saudável.
+## Requisitos
+
+- a app deve subir sem erro
+- o endpoint deve retornar um JSON simples
+- deve existir ao menos um teste unitário
+- deve existir ao menos um teste e2e
+
+## Restrições
+
+- manter a estrutura simples
+- não criar camadas extras sem necessidade

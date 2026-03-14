@@ -2,14 +2,16 @@
 
 ## Objetivo
 
-Introduzir a estrutura básica de uma aplicação NestJS.
+Introduzir a estrutura mínima de uma aplicação NestJS.
 
 ## O que será praticado
 
 - bootstrap da aplicação
-- módulo principal
-- controller simples
-- service simples
+- module
+- controller
+- service
+- endpoint HTTP simples
+- testes unitários e e2e básicos
 
 ## Comandos
 
