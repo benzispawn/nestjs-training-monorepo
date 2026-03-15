@@ -1,0 +1,12 @@
+import { AppService } from '../../src/app.service';
+
+describe('AppService', () => {
+  it('should return health payload', () => {
+    const service = new AppService();
+
+    expect(service.getHealth()).toEqual({
+      status: 'ok',
+      service: '__TRAIL_NAME__',
+    });
+  });
+});

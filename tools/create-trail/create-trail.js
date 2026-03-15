@@ -79,6 +79,37 @@ function validateInput(args) {
   }
 }
 
+function getTemplateFiles(type) {
+  if (type === 'rest') {
+    return [
+      ['package.json.template', 'package.json'],
+      ['tsconfig.json.template', 'tsconfig.json'],
+      ['jest.config.js.template', 'jest.config.js'],
+      ['.env.example.template', '.env.example'],
+      ['src/main.ts.template', 'src/main.ts'],
+      ['src/app.module.ts.template', 'src/app.module.ts'],
+      ['src/app.controller.ts.template', 'src/app.controller.ts'],
+      ['src/app.service.ts.template', 'src/app.service.ts'],
+      ['test/unit/app.service.spec.ts.template', 'test/unit/app.service.spec.ts'],
+      ['test/e2e/health.test.ts.template', 'test/e2e/health.test.ts'],
+      ['docs/README.md.template', 'docs/README.md'],
+      ['docs/TASK.md.template', 'docs/TASK.md'],
+      ['docs/DONE.md.template', 'docs/DONE.md'],
+    ];
+  }
+
+  return [
+    ['package.json.template', 'package.json'],
+    ['tsconfig.json.template', 'tsconfig.json'],
+    ['jest.config.js.template', 'jest.config.js'],
+    ['.env.example.template', '.env.example'],
+    ['src/main.ts.template', 'src/main.ts'],
+    ['docs/README.md.template', 'docs/README.md'],
+    ['docs/TASK.md.template', 'docs/TASK.md'],
+    ['docs/DONE.md.template', 'docs/DONE.md'],
+  ];
+}
+
 function copyTemplateFile(templatePath, destinationPath, tokens) {
   const content = readFile(templatePath);
   const finalContent = replaceTokens(content, tokens);
@@ -91,6 +122,18 @@ function createTrailStructure(targetDir) {
   ensureDir(path.join(targetDir, 'test/e2e'));
   ensureDir(path.join(targetDir, 'docs'));
   ensureDir(path.join(targetDir, 'bruno'));
+}
+
+function getTemplateName(type) {
+  const templatesByType = {
+    generic: 'trail-template',
+    rest: 'nest-rest-template',
+    graphql: 'nest-graphql-template',
+    supergraph: 'nest-supergraph-template',
+    testing: 'testing-template',
+  };
+
+  return templatesByType[type] || 'trail-template';
 }
 
 function createFromTemplate(args) {
@@ -115,18 +158,20 @@ function createFromTemplate(args) {
     '__TSCONFIG_RELATIVE_PATH__': getRelativeTsconfigPath(targetDir),
   };
 
-  const templateBase = path.join(process.cwd(), 'packages', 'templates', 'trail-template');
+  const templateName = getTemplateName(type);
+  const templateBase = path.join(
+    process.cwd(),
+    'packages',
+    'templates',
+    templateName,
+  );
 
-  const files = [
-    ['package.json.template', 'package.json'],
-    ['tsconfig.json.template', 'tsconfig.json'],
-    ['jest.config.js.template', 'jest.config.js'],
-    ['.env.example.template', '.env.example'],
-    ['src/main.ts.template', 'src/main.ts'],
-    ['docs/README.md.template', 'docs/README.md'],
-    ['docs/TASK.md.template', 'docs/TASK.md'],
-    ['docs/DONE.md.template', 'docs/DONE.md'],
-  ];
+  if (!fs.existsSync(templateBase)) {
+    console.error(`Template not found: ${templateName}`);
+    process.exit(1);
+  }
+
+  const files = getTemplateFiles(type);
 
   for (const [templateRelative, targetRelative] of files) {
     const templatePath = path.join(templateBase, templateRelative);

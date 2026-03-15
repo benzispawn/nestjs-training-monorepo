@@ -1,0 +1,18 @@
+# __TRAIL_TITLE__
+
+## Objetivo
+
+__TRAIL_OBJECTIVE__
+
+## O que será praticado
+
+- bootstrap de aplicação NestJS
+- module, controller e service
+- endpoint REST simples
+- testes unitários com Jest
+- testes e2e com TAP
+
+## Executar em modo dev
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ run start:dev

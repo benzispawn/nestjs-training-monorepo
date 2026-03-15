@@ -1,0 +1,17 @@
+# Task
+
+## Contexto
+
+Implemente ou evolua uma API REST NestJS pequena e focada.
+
+## Requisitos
+
+- a aplicação deve subir sem erro
+- deve existir pelo menos um endpoint funcional
+- deve existir ao menos um teste unitário
+- deve existir ao menos um teste e2e
+
+## Restrições
+
+- manter foco em um assunto principal
+- evitar complexidade desnecessária

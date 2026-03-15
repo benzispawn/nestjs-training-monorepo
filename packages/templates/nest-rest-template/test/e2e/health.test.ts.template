@@ -1,0 +1,24 @@
+import t from 'tap';
+import request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../../src/app.module';
+
+t.test('GET /health returns application health', async (t) => {
+  const moduleRef = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  const app: INestApplication = moduleRef.createNestApplication();
+  await app.init();
+
+  const response = await request(app.getHttpServer()).get('/health');
+
+  t.equal(response.status, 200);
+  t.same(response.body, {
+    status: 'ok',
+    service: '__TRAIL_NAME__',
+  });
+
+  await app.close();
+});
