@@ -1,0 +1,93 @@
+import http, { Server } from 'node:http';
+import { ToggleContract } from './feature-toggle-client';
+
+type RunningMockService = {
+  url: string;
+  close: () => Promise<void>;
+};
+
+const sendJson = (
+  response: http.ServerResponse,
+  statusCode: number,
+  body: unknown,
+) => {
+  response.writeHead(statusCode, {
+    'content-type': 'application/json',
+  });
+  response.end(JSON.stringify(body));
+};
+
+const closeServer = (server: Server) =>
+  new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
+
+export async function startFeatureToggleService(
+  port = Number(process.env.FEATURE_TOGGLE_SERVICE_PORT || 4101),
+): Promise<RunningMockService> {
+  const toggles: ToggleContract[] = [
+    {
+      key: 'legacy-recommendation-card',
+      enabled: true,
+      owner: 'frontend-home',
+      legacy: true,
+    },
+    {
+      key: 'new-recommendation-card',
+      enabled: true,
+      owner: 'frontend-home',
+      legacy: false,
+    },
+  ];
+
+  const server = http.createServer((request, response) => {
+    const url = new URL(request.url || '/', 'http://localhost');
+
+    if (request.method === 'GET' && url.pathname === '/feature-toggles') {
+      sendJson(response, 200, {
+        toggles,
+      });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/consumer-impact') {
+      const impactedConsumers = toggles
+        .filter((toggle) => toggle.legacy)
+        .map((toggle) => ({
+          toggle: toggle.key,
+          consumer: toggle.owner,
+          action: 'validar remocao do contrato e do codigo morto',
+        }));
+
+      sendJson(response, 200, {
+        impactedConsumers,
+        hasLegacyToggle: impactedConsumers.length > 0,
+      });
+      return;
+    }
+
+    sendJson(response, 404, {
+      code: 'NOT_FOUND',
+      message: 'Rota nao encontrada no servico de feature toggles.',
+    });
+  });
+
+  await new Promise<void>((resolve) => server.listen(port, resolve));
+
+  const address = server.address();
+  const resolvedPort = typeof address === 'object' && address ? address.port : port;
+
+  return {
+    url: `http://127.0.0.1:${resolvedPort}`,
+    close: () => closeServer(server),
+  };
+}
+
+if (require.main === module) {
+  startFeatureToggleService().then((service) => {
+    console.log(`Feature toggle service running at ${service.url}`);
+  });
+}

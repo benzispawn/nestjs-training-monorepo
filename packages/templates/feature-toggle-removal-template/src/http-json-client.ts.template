@@ -1,0 +1,14 @@
+export class HttpJsonClient {
+  constructor(private readonly baseUrl: string) {}
+
+  async get<TResponse>(path: string): Promise<TResponse> {
+    const response = await fetch(`${this.baseUrl}${path}`);
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${JSON.stringify(payload)}`);
+    }
+
+    return payload as TResponse;
+  }
+}

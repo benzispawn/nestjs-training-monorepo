@@ -1,0 +1,21 @@
+# Tarefa
+
+## Contexto
+
+Esta trilha cobre os Niveis 3 e 4: alterar uma query existente e implementar uma nova query no supergraph.
+
+## Requisitos
+
+- adicionar ou remover campos em `ProductSummaryDto`
+- consumir catalogo e precificacao por clients HTTP dedicados
+- atualizar mapeamento entre catalogo e precificacao
+- manter campos existentes quando houver consumidor dependente
+- implementar uma nova query seguindo o mesmo padrao do endpoint atual
+- adicionar tratamento de erro claro
+- atualizar testes unitarios e e2e
+
+## Restricoes
+
+- nao adicionar dependencias GraphQL nesta trilha sem decisao explicita
+- documentar qualquer mudanca de contrato
+- manter a composicao simples e legivel

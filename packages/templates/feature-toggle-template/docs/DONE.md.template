@@ -1,0 +1,9 @@
+# Criterios de aceite
+
+A trilha esta concluida quando:
+
+- o toggle novo aparece em `GET /feature-toggles`
+- toggles desconhecidos usam fallback previsivel
+- testes unitarios passam
+- testes e2e passam
+- documentacao descreve o contrato exposto

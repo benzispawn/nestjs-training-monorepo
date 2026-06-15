@@ -1,0 +1,10 @@
+# Criterios de aceite
+
+A trilha esta concluida quando:
+
+- o endpoint retorna dados compostos
+- regra de negocio de preco final esta testada
+- erro de oferta ausente esta coberto
+- metricas sao atualizadas
+- logs existem no fluxo principal
+- documentacao descreve o contrato final

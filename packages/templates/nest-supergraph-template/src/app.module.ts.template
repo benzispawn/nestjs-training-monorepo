@@ -1,0 +1,11 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { CatalogClient } from './catalog-client';
+import { PricingClient } from './pricing-client';
+
+@Module({
+  controllers: [AppController],
+  providers: [AppService, CatalogClient, PricingClient],
+})
+export class AppModule {}

@@ -1,0 +1,63 @@
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { FeatureToggleClient } from './feature-toggle-client';
+import { SupergraphClient } from './supergraph-client';
+
+export type OfferDto = {
+  id: string;
+  name: string;
+  finalPrice: number;
+  available: boolean;
+  sources: string[];
+};
+
+@Injectable()
+export class AppService {
+  private readonly logger = new Logger(AppService.name);
+  private readonly metrics = {
+    offerRequests: 0,
+    offerErrors: 0,
+  };
+
+  constructor(
+    private readonly supergraphClient: SupergraphClient,
+    private readonly featureToggleClient: FeatureToggleClient,
+  ) {}
+
+  getHealth() {
+    return {
+      status: 'ok',
+      service: '__TRAIL_NAME__',
+    };
+  }
+
+  async getOffer(id: string): Promise<OfferDto> {
+    this.metrics.offerRequests += 1;
+    this.logger.log(`Building offer ${id}`);
+
+    try {
+      const [product, discountsToggle] = await Promise.all([
+        this.supergraphClient.getProductSummary(id),
+        this.featureToggleClient.getFeatureToggle('discounts-enabled'),
+      ]);
+      const discount = discountsToggle.enabled ? 1500 : 0;
+
+      return {
+        id: product.id,
+        name: product.name,
+        finalPrice: Math.max(product.basePrice - discount, 0),
+        available: product.availableQuantity > 0,
+        sources: ['supergraph', 'feature-toggle'],
+      };
+    } catch {
+      this.metrics.offerErrors += 1;
+      throw new NotFoundException({
+        code: 'OFFER_NOT_FOUND',
+        message: 'Oferta nao encontrada.',
+      });
+    }
+  }
+
+  getMetrics() {
+    return this.metrics;
+  }
+}

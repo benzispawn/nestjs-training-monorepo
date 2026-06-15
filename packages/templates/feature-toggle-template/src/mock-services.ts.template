@@ -1,0 +1,116 @@
+import http, { Server } from 'node:http';
+import { CreateFeatureToggleInput, FeatureToggle } from './feature-toggle-client';
+
+type RunningMockService = {
+  url: string;
+  close: () => Promise<void>;
+};
+
+const readRequestBody = async (request: http.IncomingMessage) => {
+  const chunks: Buffer[] = [];
+
+  for await (const chunk of request) {
+    chunks.push(Buffer.from(chunk));
+  }
+
+  const body = Buffer.concat(chunks).toString('utf8');
+  return body ? JSON.parse(body) : {};
+};
+
+const sendJson = (
+  response: http.ServerResponse,
+  statusCode: number,
+  body: unknown,
+) => {
+  response.writeHead(statusCode, {
+    'content-type': 'application/json',
+  });
+  response.end(JSON.stringify(body));
+};
+
+const closeServer = (server: Server) =>
+  new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
+
+export async function startFeatureToggleService(
+  port = Number(process.env.FEATURE_TOGGLE_SERVICE_PORT || 4101),
+): Promise<RunningMockService> {
+  const defaultFallback = process.env.FEATURE_TOGGLE_DEFAULT === 'true';
+  const toggles = new Map<string, FeatureToggle>([
+    [
+      'new-checkout',
+      {
+        key: 'new-checkout',
+        enabled: false,
+        description: 'Controla a nova experiencia de checkout.',
+        fallback: false,
+        exposedToFrontend: true,
+      },
+    ],
+  ]);
+
+  const server = http.createServer(async (request, response) => {
+    const url = new URL(request.url || '/', 'http://localhost');
+
+    if (request.method === 'GET' && url.pathname === '/feature-toggles') {
+      sendJson(response, 200, {
+        toggles: [...toggles.values()].filter((toggle) => toggle.exposedToFrontend),
+      });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname.startsWith('/feature-toggles/')) {
+      const key = decodeURIComponent(url.pathname.replace('/feature-toggles/', ''));
+      const toggle = toggles.get(key);
+
+      sendJson(response, 200, toggle ?? {
+        key,
+        enabled: defaultFallback,
+        description: 'Fallback aplicado para toggle nao cadastrado.',
+        fallback: true,
+        exposedToFrontend: true,
+      });
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/feature-toggles') {
+      const input = await readRequestBody(request) as CreateFeatureToggleInput;
+      const toggle: FeatureToggle = {
+        key: input.key,
+        enabled: input.enabled ?? defaultFallback,
+        description: input.description ?? 'Toggle criado para a trilha.',
+        fallback: false,
+        exposedToFrontend: input.exposedToFrontend ?? true,
+      };
+
+      toggles.set(toggle.key, toggle);
+      sendJson(response, 201, toggle);
+      return;
+    }
+
+    sendJson(response, 404, {
+      code: 'NOT_FOUND',
+      message: 'Rota nao encontrada no servico de feature toggles.',
+    });
+  });
+
+  await new Promise<void>((resolve) => server.listen(port, resolve));
+
+  const address = server.address();
+  const resolvedPort = typeof address === 'object' && address ? address.port : port;
+
+  return {
+    url: `http://127.0.0.1:${resolvedPort}`,
+    close: () => closeServer(server),
+  };
+}
+
+if (require.main === module) {
+  startFeatureToggleService().then((service) => {
+    console.log(`Feature toggle service running at ${service.url}`);
+  });
+}

@@ -1,0 +1,36 @@
+# __TRAIL_TITLE__
+
+## Objetivo
+
+__TRAIL_OBJECTIVE__
+
+## O que sera praticado
+
+- alterar uma query existente do supergraph
+- adicionar uma nova query federada
+- consumir subgraphs por HTTP usando clients dedicados
+- atualizar DTOs e tipos
+- ajustar mapeamentos entre subgraphs
+- manter retrocompatibilidade
+- tratar erros de composicao
+
+## Executar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ run start:mocks
+npm --workspace @trails/__TRAIL_NAME__ run start:dev
+```
+
+## Testar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ test
+```
+
+## Fluxo principal
+
+- gateway didatico: `GET /supergraph/products/:id`
+- subgraph catalogo: `CATALOG_SUBGRAPH_PORT`
+- subgraph precificacao: `PRICING_SUBGRAPH_PORT`
+
+Este template nao adiciona Apollo/Federation ainda. Ele isola o aprendizado de contratos, DTOs, mapeamentos, consumo HTTP e retrocompatibilidade.

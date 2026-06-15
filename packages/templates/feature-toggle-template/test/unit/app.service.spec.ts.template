@@ -1,0 +1,60 @@
+import { AppService } from '../../src/app.service';
+import { FeatureToggleClient } from '../../src/feature-toggle-client';
+
+describe('AppService feature toggle', () => {
+  const createClient = (): jest.Mocked<FeatureToggleClient> => ({
+    listFeatureToggles: jest.fn(),
+    getFeatureToggle: jest.fn(),
+    createFeatureToggle: jest.fn(),
+  } as unknown as jest.Mocked<FeatureToggleClient>);
+
+  it('should expose toggles from the external toggle service', async () => {
+    const client = createClient();
+    client.listFeatureToggles.mockResolvedValue({
+      toggles: [
+        {
+          key: 'new-checkout',
+          enabled: false,
+          description: 'Controla a nova experiencia de checkout.',
+          fallback: false,
+          exposedToFrontend: true,
+        },
+      ],
+    });
+    const service = new AppService(client);
+
+    await expect(service.listFeatureToggles()).resolves.toEqual({
+      toggles: [
+        {
+          key: 'new-checkout',
+          enabled: false,
+          description: 'Controla a nova experiencia de checkout.',
+          fallback: false,
+          exposedToFrontend: true,
+        },
+      ],
+    });
+    expect(client.listFeatureToggles).toHaveBeenCalledTimes(1);
+  });
+
+  it('should keep fallback behavior owned by the toggle service', async () => {
+    const client = createClient();
+    client.getFeatureToggle.mockResolvedValue({
+      key: 'unknown-toggle',
+      enabled: false,
+      description: 'Fallback aplicado para toggle nao cadastrado.',
+      fallback: true,
+      exposedToFrontend: true,
+    });
+    const service = new AppService(client);
+
+    await expect(service.getFeatureToggle('unknown-toggle')).resolves.toEqual({
+      key: 'unknown-toggle',
+      enabled: false,
+      description: 'Fallback aplicado para toggle nao cadastrado.',
+      fallback: true,
+      exposedToFrontend: true,
+    });
+    expect(client.getFeatureToggle).toHaveBeenCalledWith('unknown-toggle');
+  });
+});

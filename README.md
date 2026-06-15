@@ -33,3 +33,25 @@ Monorepo para treinar NestJS por trilhas práticas e isoladas.
 npm install
 npm run check:repo
 npm run list:trails
+```
+
+## Gerar trilha
+
+```bash
+npm run generate:trail -- --category feature-flags --name 01-add-toggle --type feature-toggle
+```
+
+Tipos suportados:
+
+- `generic`
+- `rest`
+- `feature-toggle`
+- `feature-toggle-removal`
+- `supergraph`
+- `bff-endpoint`
+
+Templates que simulam servicos externos usam clients HTTP dedicados e podem expor:
+
+```bash
+npm --workspace @trails/<nome-da-trilha> run start:mocks
+```

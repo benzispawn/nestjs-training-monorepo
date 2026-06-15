@@ -1,0 +1,11 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { FeatureToggleClient } from './feature-toggle-client';
+import { SupergraphClient } from './supergraph-client';
+
+@Module({
+  controllers: [AppController],
+  providers: [AppService, SupergraphClient, FeatureToggleClient],
+})
+export class AppModule {}

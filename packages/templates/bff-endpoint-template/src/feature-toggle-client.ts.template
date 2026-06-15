@@ -1,0 +1,21 @@
+import { HttpJsonClient } from './http-json-client';
+
+export type FeatureToggle = {
+  key: string;
+  enabled: boolean;
+  fallback: boolean;
+};
+
+export class FeatureToggleClient {
+  private readonly http: HttpJsonClient;
+
+  constructor(
+    baseUrl = process.env.FEATURE_TOGGLE_SERVICE_URL || 'http://localhost:4122',
+  ) {
+    this.http = new HttpJsonClient(baseUrl);
+  }
+
+  getFeatureToggle(key: string) {
+    return this.http.get<FeatureToggle>(`/feature-toggles/${key}`);
+  }
+}

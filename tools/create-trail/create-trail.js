@@ -69,6 +69,14 @@ function objectiveFromCategory(category, name) {
 
 function validateInput(args) {
   const required = ['category', 'name'];
+  const supportedTypes = [
+    'generic',
+    'rest',
+    'feature-toggle',
+    'feature-toggle-removal',
+    'supergraph',
+    'bff-endpoint',
+  ];
 
   const missing = required.filter((key) => !args[key]);
 
@@ -77,43 +85,54 @@ function validateInput(args) {
     console.error('Usage: npm run generate:trail -- --category validation --name 01-zod-request-validation --type rest');
     process.exit(1);
   }
-}
 
-function getTemplateFiles(type) {
-  if (type === 'rest') {
-    return [
-      ['package.json.template', 'package.json'],
-      ['tsconfig.json.template', 'tsconfig.json'],
-      ['jest.config.js.template', 'jest.config.js'],
-      ['.env.example.template', '.env.example'],
-      ['src/main.ts.template', 'src/main.ts'],
-      ['src/app.module.ts.template', 'src/app.module.ts'],
-      ['src/app.controller.ts.template', 'src/app.controller.ts'],
-      ['src/app.service.ts.template', 'src/app.service.ts'],
-      ['test/unit/app.service.spec.ts.template', 'test/unit/app.service.spec.ts'],
-      ['test/e2e/health.test.ts.template', 'test/e2e/health.test.ts'],
-      ['docs/README.md.template', 'docs/README.md'],
-      ['docs/TASK.md.template', 'docs/TASK.md'],
-      ['docs/DONE.md.template', 'docs/DONE.md'],
-    ];
+  if (args.type && !supportedTypes.includes(args.type)) {
+    console.error(`Unsupported trail type: ${args.type}`);
+    console.error(`Supported trail types: ${supportedTypes.join(', ')}`);
+    process.exit(1);
   }
-
-  return [
-    ['package.json.template', 'package.json'],
-    ['tsconfig.json.template', 'tsconfig.json'],
-    ['jest.config.js.template', 'jest.config.js'],
-    ['.env.example.template', '.env.example'],
-    ['src/main.ts.template', 'src/main.ts'],
-    ['docs/README.md.template', 'docs/README.md'],
-    ['docs/TASK.md.template', 'docs/TASK.md'],
-    ['docs/DONE.md.template', 'docs/DONE.md'],
-  ];
 }
 
 function copyTemplateFile(templatePath, destinationPath, tokens) {
   const content = readFile(templatePath);
   const finalContent = replaceTokens(content, tokens);
   writeFile(destinationPath, finalContent);
+}
+
+function getDestinationRelativePath(templateRelativePath) {
+  return templateRelativePath.endsWith('.template')
+    ? templateRelativePath.slice(0, -'.template'.length)
+    : templateRelativePath;
+}
+
+function listTemplateFiles(templateBase, currentDir = templateBase) {
+  const result = [];
+  const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const entryPath = path.join(currentDir, entry.name);
+
+    if (entry.isDirectory()) {
+      result.push(...listTemplateFiles(templateBase, entryPath));
+      continue;
+    }
+
+    const relativePath = path.relative(templateBase, entryPath).replace(/\\/g, '/');
+    result.push(relativePath);
+  }
+
+  return result;
+}
+
+function copyTemplateDirectory(templateBase, targetDir, tokens) {
+  const files = listTemplateFiles(templateBase);
+
+  for (const templateRelative of files) {
+    const targetRelative = getDestinationRelativePath(templateRelative);
+    const templatePath = path.join(templateBase, templateRelative);
+    const destinationPath = path.join(targetDir, targetRelative);
+    copyTemplateFile(templatePath, destinationPath, tokens);
+  }
 }
 
 function createTrailStructure(targetDir) {
@@ -128,9 +147,10 @@ function getTemplateName(type) {
   const templatesByType = {
     generic: 'trail-template',
     rest: 'nest-rest-template',
-    graphql: 'nest-graphql-template',
+    'feature-toggle': 'feature-toggle-template',
+    'feature-toggle-removal': 'feature-toggle-removal-template',
     supergraph: 'nest-supergraph-template',
-    testing: 'testing-template',
+    'bff-endpoint': 'bff-endpoint-template',
   };
 
   return templatesByType[type] || 'trail-template';
@@ -171,13 +191,7 @@ function createFromTemplate(args) {
     process.exit(1);
   }
 
-  const files = getTemplateFiles(type);
-
-  for (const [templateRelative, targetRelative] of files) {
-    const templatePath = path.join(templateBase, templateRelative);
-    const destinationPath = path.join(targetDir, targetRelative);
-    copyTemplateFile(templatePath, destinationPath, tokens);
-  }
+  copyTemplateDirectory(templateBase, targetDir, tokens);
 
   writeFile(path.join(targetDir, 'test/unit/.gitkeep'), '');
   writeFile(path.join(targetDir, 'test/e2e/.gitkeep'), '');

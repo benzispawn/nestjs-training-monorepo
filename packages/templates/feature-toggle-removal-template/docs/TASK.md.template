@@ -1,0 +1,20 @@
+# Tarefa
+
+## Contexto
+
+Esta trilha representa o Nivel 2: remover um feature toggle legado com seguranca.
+
+## Requisitos
+
+- remover `legacy-recommendation-card`
+- consumir o contrato por `FeatureToggleClient`
+- remover codigo morto associado ao toggle legado
+- atualizar testes para o novo contrato
+- atualizar documentacao removendo referencias ao legado
+- validar consumidores em `GET /consumer-impact`
+
+## Restricoes
+
+- nao remover o toggle novo `new-recommendation-card`
+- nao ocultar impacto em consumidores
+- manter o contrato final simples

@@ -1,0 +1,20 @@
+# Tarefa
+
+## Contexto
+
+Esta trilha representa o Nivel 1: adicionar um feature toggle novo sem quebrar consumidores existentes.
+
+## Requisitos
+
+- criar um toggle novo
+- consumir o servico de toggles via `FeatureToggleClient`
+- expor o toggle no contrato usado pelo frontend
+- manter fallback para toggles desconhecidos
+- adicionar testes unitarios para regra de fallback
+- adicionar teste e2e para exposicao do contrato
+
+## Restricoes
+
+- manter a trilha simples e autocontida
+- nao adicionar dependencias sem necessidade
+- atualizar esta documentacao se o contrato mudar

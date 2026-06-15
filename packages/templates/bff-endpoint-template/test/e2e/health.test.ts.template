@@ -1,0 +1,34 @@
+import t from 'tap';
+import request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../../src/app.module';
+import { startBffMockServices } from '../../src/mock-services';
+
+t.test('GET /bff/offers/:id returns a composed offer', async (t) => {
+  const services = await startBffMockServices({
+    supergraph: 0,
+    featureToggles: 0,
+  });
+  process.env.SUPERGRAPH_SERVICE_URL = services.supergraph.url;
+  process.env.FEATURE_TOGGLE_SERVICE_URL = services.featureToggles.url;
+
+  const moduleRef = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  const app: INestApplication = moduleRef.createNestApplication();
+  await app.init();
+  t.teardown(async () => {
+    await app.close();
+    await services.close();
+    delete process.env.SUPERGRAPH_SERVICE_URL;
+    delete process.env.FEATURE_TOGGLE_SERVICE_URL;
+  });
+
+  const response = await request(app.getHttpServer()).get('/bff/offers/offer-1');
+
+  t.equal(response.status, 200);
+  t.equal(response.body.finalPrice, 8500);
+  t.equal(response.body.available, true);
+});

@@ -1,0 +1,10 @@
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { FeatureToggleClient } from './feature-toggle-client';
+
+@Module({
+  controllers: [AppController],
+  providers: [AppService, FeatureToggleClient],
+})
+export class AppModule {}

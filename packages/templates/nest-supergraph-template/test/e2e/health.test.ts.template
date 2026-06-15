@@ -1,0 +1,34 @@
+import t from 'tap';
+import request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../../src/app.module';
+import { startSupergraphMockServices } from '../../src/mock-services';
+
+t.test('GET /supergraph/products/:id returns composed data', async (t) => {
+  const services = await startSupergraphMockServices({
+    catalog: 0,
+    pricing: 0,
+  });
+  process.env.CATALOG_SUBGRAPH_URL = services.catalog.url;
+  process.env.PRICING_SUBGRAPH_URL = services.pricing.url;
+
+  const moduleRef = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  const app: INestApplication = moduleRef.createNestApplication();
+  await app.init();
+  t.teardown(async () => {
+    await app.close();
+    await services.close();
+    delete process.env.CATALOG_SUBGRAPH_URL;
+    delete process.env.PRICING_SUBGRAPH_URL;
+  });
+
+  const response = await request(app.getHttpServer()).get('/supergraph/products/product-1');
+
+  t.equal(response.status, 200);
+  t.equal(response.body.source, 'supergraph');
+  t.equal(response.body.price, 4990);
+});

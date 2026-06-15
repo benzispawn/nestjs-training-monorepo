@@ -1,0 +1,21 @@
+import { HttpJsonClient } from './http-json-client';
+
+export type PricingProduct = {
+  id: string;
+  price: number;
+  currency: 'BRL';
+};
+
+export class PricingClient {
+  private readonly http: HttpJsonClient;
+
+  constructor(
+    baseUrl = process.env.PRICING_SUBGRAPH_URL || 'http://localhost:4112',
+  ) {
+    this.http = new HttpJsonClient(baseUrl);
+  }
+
+  getProductPrice(id: string) {
+    return this.http.get<PricingProduct>(`/prices/${id}`);
+  }
+}

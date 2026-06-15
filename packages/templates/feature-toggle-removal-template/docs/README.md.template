@@ -1,0 +1,36 @@
+# __TRAIL_TITLE__
+
+## Objetivo
+
+__TRAIL_OBJECTIVE__
+
+## O que sera praticado
+
+- remover um feature toggle legado
+- consumir um servico externo de toggles via HTTP
+- eliminar codigo morto
+- atualizar contrato e documentacao
+- validar impacto em consumidores
+
+## Executar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ run start:mocks
+npm --workspace @trails/__TRAIL_NAME__ run start:dev
+```
+
+## Testar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ test
+```
+
+## Fluxo principal
+
+- `GET /feature-toggles`
+- `GET /consumer-impact`
+
+## Servicos locais
+
+- BFF da trilha: `PORT`
+- servico de toggles: `FEATURE_TOGGLE_SERVICE_PORT`

@@ -22,6 +22,7 @@ Usar nomes previsíveis quando aplicável:
 
 - `start`
 - `start:dev`
+- `start:mocks`
 - `build`
 - `lint`
 - `test`
@@ -41,3 +42,27 @@ Quando a trilha envolver supergraph:
 - separar gateway e subgraphs claramente
 - documentar portas e fluxo
 - incluir explicação de composição
+- consumir subgraphs por clients HTTP quando a trilha simular servicos externos
+
+## Servicos externos simulados
+
+Quando a trilha precisar de dependencias externas:
+
+- usar clients dedicados, por exemplo `FeatureToggleClient` ou `SupergraphClient`
+- manter mocks HTTP locais em `src/mock-services.ts`
+- expor script `start:mocks`
+- documentar portas e variaveis de ambiente
+- preferir `node:http` antes de adicionar dependencias novas
+
+## Templates suportados
+
+O gerador aceita os tipos:
+
+- `generic`
+- `rest`
+- `feature-toggle`
+- `feature-toggle-removal`
+- `supergraph`
+- `bff-endpoint`
+
+Nao use tipos sem template executavel.

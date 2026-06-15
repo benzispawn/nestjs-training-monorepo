@@ -1,0 +1,29 @@
+import t from 'tap';
+import request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { AppModule } from '../../src/app.module';
+import { startFeatureToggleService } from '../../src/mock-services';
+
+t.test('GET /consumer-impact returns legacy impact', async (t) => {
+  const featureToggleService = await startFeatureToggleService(0);
+  process.env.FEATURE_TOGGLE_SERVICE_URL = featureToggleService.url;
+
+  const moduleRef = await Test.createTestingModule({
+    imports: [AppModule],
+  }).compile();
+
+  const app: INestApplication = moduleRef.createNestApplication();
+  await app.init();
+  t.teardown(async () => {
+    await app.close();
+    await featureToggleService.close();
+    delete process.env.FEATURE_TOGGLE_SERVICE_URL;
+  });
+
+  const response = await request(app.getHttpServer()).get('/consumer-impact');
+
+  t.equal(response.status, 200);
+  t.equal(response.body.hasLegacyToggle, true);
+  t.equal(response.body.impactedConsumers[0].consumer, 'frontend-home');
+});

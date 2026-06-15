@@ -1,0 +1,29 @@
+import { Injectable } from '@nestjs/common';
+import {
+  CreateFeatureToggleInput,
+  FeatureToggleClient,
+} from './feature-toggle-client';
+
+@Injectable()
+export class AppService {
+  constructor(private readonly featureToggleClient: FeatureToggleClient) {}
+
+  getHealth() {
+    return {
+      status: 'ok',
+      service: '__TRAIL_NAME__',
+    };
+  }
+
+  listFeatureToggles() {
+    return this.featureToggleClient.listFeatureToggles();
+  }
+
+  getFeatureToggle(key: string) {
+    return this.featureToggleClient.getFeatureToggle(key);
+  }
+
+  createFeatureToggle(input: CreateFeatureToggleInput) {
+    return this.featureToggleClient.createFeatureToggle(input);
+  }
+}

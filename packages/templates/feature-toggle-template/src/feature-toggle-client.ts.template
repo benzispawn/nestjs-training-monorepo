@@ -1,0 +1,38 @@
+import { HttpJsonClient } from './http-json-client';
+
+export type FeatureToggle = {
+  key: string;
+  enabled: boolean;
+  description: string;
+  fallback: boolean;
+  exposedToFrontend: boolean;
+};
+
+export type CreateFeatureToggleInput = {
+  key: string;
+  enabled?: boolean;
+  description?: string;
+  exposedToFrontend?: boolean;
+};
+
+export class FeatureToggleClient {
+  private readonly http: HttpJsonClient;
+
+  constructor(
+    baseUrl = process.env.FEATURE_TOGGLE_SERVICE_URL || 'http://localhost:4101',
+  ) {
+    this.http = new HttpJsonClient(baseUrl);
+  }
+
+  listFeatureToggles() {
+    return this.http.get<{ toggles: FeatureToggle[] }>('/feature-toggles');
+  }
+
+  getFeatureToggle(key: string) {
+    return this.http.get<FeatureToggle>(`/feature-toggles/${key}`);
+  }
+
+  createFeatureToggle(input: CreateFeatureToggleInput) {
+    return this.http.post<FeatureToggle>('/feature-toggles', input);
+  }
+}

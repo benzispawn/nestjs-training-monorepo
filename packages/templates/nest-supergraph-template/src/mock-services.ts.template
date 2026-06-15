@@ -1,0 +1,105 @@
+import http, { Server } from 'node:http';
+
+type RunningMockService = {
+  url: string;
+  close: () => Promise<void>;
+};
+
+type RunningSupergraphMocks = {
+  catalog: RunningMockService;
+  pricing: RunningMockService;
+  close: () => Promise<void>;
+};
+
+const sendJson = (
+  response: http.ServerResponse,
+  statusCode: number,
+  body: unknown,
+) => {
+  response.writeHead(statusCode, {
+    'content-type': 'application/json',
+  });
+  response.end(JSON.stringify(body));
+};
+
+const closeServer = (server: Server) =>
+  new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
+
+async function startServer(
+  port: number,
+  handler: http.RequestListener,
+): Promise<RunningMockService> {
+  const server = http.createServer(handler);
+  await new Promise<void>((resolve) => server.listen(port, resolve));
+  const address = server.address();
+  const resolvedPort = typeof address === 'object' && address ? address.port : port;
+
+  return {
+    url: `http://127.0.0.1:${resolvedPort}`,
+    close: () => closeServer(server),
+  };
+}
+
+export async function startSupergraphMockServices(
+  ports = {
+    catalog: Number(process.env.CATALOG_SUBGRAPH_PORT || 4111),
+    pricing: Number(process.env.PRICING_SUBGRAPH_PORT || 4112),
+  },
+): Promise<RunningSupergraphMocks> {
+  const catalog = await startServer(ports.catalog, (request, response) => {
+    const url = new URL(request.url || '/', 'http://localhost');
+
+    if (request.method === 'GET' && url.pathname === '/products/product-1') {
+      sendJson(response, 200, {
+        id: 'product-1',
+        name: 'Plano Essencial',
+        category: 'subscription',
+      });
+      return;
+    }
+
+    sendJson(response, 404, {
+      code: 'PRODUCT_NOT_FOUND',
+      message: 'Produto nao encontrado no catalogo.',
+    });
+  });
+
+  const pricing = await startServer(ports.pricing, (request, response) => {
+    const url = new URL(request.url || '/', 'http://localhost');
+
+    if (request.method === 'GET' && url.pathname === '/prices/product-1') {
+      sendJson(response, 200, {
+        id: 'product-1',
+        price: 4990,
+        currency: 'BRL',
+      });
+      return;
+    }
+
+    sendJson(response, 404, {
+      code: 'PRICE_NOT_FOUND',
+      message: 'Preco nao encontrado no subgraph de precificacao.',
+    });
+  });
+
+  return {
+    catalog,
+    pricing,
+    close: async () => {
+      await pricing.close();
+      await catalog.close();
+    },
+  };
+}
+
+if (require.main === module) {
+  startSupergraphMockServices().then((services) => {
+    console.log(`Catalog subgraph running at ${services.catalog.url}`);
+    console.log(`Pricing subgraph running at ${services.pricing.url}`);
+  });
+}

@@ -1,0 +1,21 @@
+import { HttpJsonClient } from './http-json-client';
+
+export type CatalogProduct = {
+  id: string;
+  name: string;
+  category: string;
+};
+
+export class CatalogClient {
+  private readonly http: HttpJsonClient;
+
+  constructor(
+    baseUrl = process.env.CATALOG_SUBGRAPH_URL || 'http://localhost:4111',
+  ) {
+    this.http = new HttpJsonClient(baseUrl);
+  }
+
+  getProduct(id: string) {
+    return this.http.get<CatalogProduct>(`/products/${id}`);
+  }
+}

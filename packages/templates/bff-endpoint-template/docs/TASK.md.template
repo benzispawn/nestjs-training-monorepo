@@ -1,0 +1,20 @@
+# Tarefa
+
+## Contexto
+
+Esta trilha representa o Nivel 5: implementar um endpoint completo no BFF.
+
+## Requisitos
+
+- criar ou alterar endpoint no BFF
+- orquestrar supergraph e feature toggle por clients HTTP
+- aplicar regra de negocio no preco final
+- retornar erro claro quando a oferta nao existir
+- manter metricas simples de sucesso e erro
+- atualizar testes e documentacao
+
+## Restricoes
+
+- manter os servicos externos como mocks HTTP locais nesta trilha
+- nao adicionar cliente HTTP real sem necessidade
+- documentar qualquer mudanca de contrato

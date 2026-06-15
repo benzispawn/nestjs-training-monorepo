@@ -1,0 +1,83 @@
+import { NotFoundException } from '@nestjs/common';
+import { AppService } from '../../src/app.service';
+import { FeatureToggleClient } from '../../src/feature-toggle-client';
+import { SupergraphClient } from '../../src/supergraph-client';
+
+describe('AppService bff endpoint', () => {
+  const createSupergraphClient = (): jest.Mocked<SupergraphClient> => ({
+    getProductSummary: jest.fn(),
+  } as unknown as jest.Mocked<SupergraphClient>);
+
+  const createFeatureToggleClient = (): jest.Mocked<FeatureToggleClient> => ({
+    getFeatureToggle: jest.fn(),
+  } as unknown as jest.Mocked<FeatureToggleClient>);
+
+  it('should orchestrate supergraph and feature toggle data', async () => {
+    const supergraphClient = createSupergraphClient();
+    const featureToggleClient = createFeatureToggleClient();
+    supergraphClient.getProductSummary.mockResolvedValue({
+      id: 'offer-1',
+      name: 'Plano Pro',
+      basePrice: 10000,
+      availableQuantity: 3,
+      source: 'supergraph',
+    });
+    featureToggleClient.getFeatureToggle.mockResolvedValue({
+      key: 'discounts-enabled',
+      enabled: true,
+      fallback: false,
+    });
+    const service = new AppService(supergraphClient, featureToggleClient);
+
+    await expect(service.getOffer('offer-1')).resolves.toEqual({
+      id: 'offer-1',
+      name: 'Plano Pro',
+      finalPrice: 8500,
+      available: true,
+      sources: ['supergraph', 'feature-toggle'],
+    });
+  });
+
+  it('should update metrics when an offer is requested', async () => {
+    const supergraphClient = createSupergraphClient();
+    const featureToggleClient = createFeatureToggleClient();
+    supergraphClient.getProductSummary.mockResolvedValue({
+      id: 'offer-1',
+      name: 'Plano Pro',
+      basePrice: 10000,
+      availableQuantity: 3,
+      source: 'supergraph',
+    });
+    featureToggleClient.getFeatureToggle.mockResolvedValue({
+      key: 'discounts-enabled',
+      enabled: true,
+      fallback: false,
+    });
+    const service = new AppService(supergraphClient, featureToggleClient);
+
+    await service.getOffer('offer-1');
+
+    expect(service.getMetrics()).toEqual({
+      offerRequests: 1,
+      offerErrors: 0,
+    });
+  });
+
+  it('should expose a clear error when the offer does not exist', async () => {
+    const supergraphClient = createSupergraphClient();
+    const featureToggleClient = createFeatureToggleClient();
+    supergraphClient.getProductSummary.mockRejectedValue(new Error('not found'));
+    featureToggleClient.getFeatureToggle.mockResolvedValue({
+      key: 'discounts-enabled',
+      enabled: true,
+      fallback: false,
+    });
+    const service = new AppService(supergraphClient, featureToggleClient);
+
+    await expect(service.getOffer('missing')).rejects.toThrow(NotFoundException);
+    expect(service.getMetrics()).toEqual({
+      offerRequests: 1,
+      offerErrors: 1,
+    });
+  });
+});

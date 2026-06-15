@@ -1,0 +1,35 @@
+import { HttpJsonClient } from './http-json-client';
+
+export type ToggleContract = {
+  key: string;
+  enabled: boolean;
+  owner: string;
+  legacy: boolean;
+};
+
+export type ConsumerImpact = {
+  toggle: string;
+  consumer: string;
+  action: string;
+};
+
+export class FeatureToggleClient {
+  private readonly http: HttpJsonClient;
+
+  constructor(
+    baseUrl = process.env.FEATURE_TOGGLE_SERVICE_URL || 'http://localhost:4101',
+  ) {
+    this.http = new HttpJsonClient(baseUrl);
+  }
+
+  listFeatureToggles() {
+    return this.http.get<{ toggles: ToggleContract[] }>('/feature-toggles');
+  }
+
+  getConsumerImpact() {
+    return this.http.get<{
+      impactedConsumers: ConsumerImpact[];
+      hasLegacyToggle: boolean;
+    }>('/consumer-impact');
+  }
+}

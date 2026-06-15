@@ -1,0 +1,9 @@
+# Criterios de aceite
+
+A trilha esta concluida quando:
+
+- a query existente continua funcionando
+- novos campos possuem DTO, mapeamento e testes
+- campos removidos foram documentados e validados contra consumidores
+- a nova query tem teste unitario e e2e
+- erros de composicao retornam resposta previsivel

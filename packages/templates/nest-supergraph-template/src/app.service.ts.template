@@ -1,0 +1,59 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CatalogClient, CatalogProduct } from './catalog-client';
+import { PricingClient, PricingProduct } from './pricing-client';
+
+export type ProductSummaryDto = {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  currency: 'BRL';
+  source: 'supergraph';
+};
+
+@Injectable()
+export class AppService {
+  constructor(
+    private readonly catalogClient: CatalogClient,
+    private readonly pricingClient: PricingClient,
+  ) {}
+
+  getHealth() {
+    return {
+      status: 'ok',
+      service: '__TRAIL_NAME__',
+      gateway: 'ready',
+      subgraphs: ['catalog', 'pricing'],
+    };
+  }
+
+  async getProductSummary(id: string): Promise<ProductSummaryDto> {
+    try {
+      const [catalog, pricing] = await Promise.all([
+        this.catalogClient.getProduct(id),
+        this.pricingClient.getProductPrice(id),
+      ]);
+
+      return this.mapProductSummary(catalog, pricing);
+    } catch {
+      throw new NotFoundException({
+        code: 'PRODUCT_NOT_FOUND',
+        message: 'Produto nao encontrado no supergraph.',
+      });
+    }
+  }
+
+  private mapProductSummary(
+    catalog: CatalogProduct,
+    pricing: PricingProduct,
+  ): ProductSummaryDto {
+    return {
+      id: catalog.id,
+      name: catalog.name,
+      category: catalog.category,
+      price: pricing.price,
+      currency: pricing.currency,
+      source: 'supergraph',
+    };
+  }
+}

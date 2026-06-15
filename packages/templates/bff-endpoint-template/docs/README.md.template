@@ -1,0 +1,38 @@
+# __TRAIL_TITLE__
+
+## Objetivo
+
+__TRAIL_OBJECTIVE__
+
+## O que sera praticado
+
+- criar um endpoint novo no BFF
+- consumir supergraph e feature toggle por HTTP
+- aplicar regra de negocio
+- tratar erros
+- registrar logs e metricas simples
+- documentar contrato
+
+## Executar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ run start:mocks
+npm --workspace @trails/__TRAIL_NAME__ run start:dev
+```
+
+## Testar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ test
+```
+
+## Fluxo principal
+
+- `GET /bff/offers/:id`
+- `GET /metrics`
+
+## Servicos locais
+
+- BFF da trilha: `PORT`
+- servico de supergraph: `SUPERGRAPH_SERVICE_PORT`
+- servico de feature toggles: `FEATURE_TOGGLE_SERVICE_PORT`

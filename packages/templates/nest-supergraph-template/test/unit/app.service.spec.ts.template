@@ -1,0 +1,55 @@
+import { NotFoundException } from '@nestjs/common';
+import { AppService } from '../../src/app.service';
+import { CatalogClient } from '../../src/catalog-client';
+import { PricingClient } from '../../src/pricing-client';
+
+describe('AppService supergraph', () => {
+  const createCatalogClient = (): jest.Mocked<CatalogClient> => ({
+    getProduct: jest.fn(),
+  } as unknown as jest.Mocked<CatalogClient>);
+
+  const createPricingClient = (): jest.Mocked<PricingClient> => ({
+    getProductPrice: jest.fn(),
+  } as unknown as jest.Mocked<PricingClient>);
+
+  it('should compose product summary from catalog and pricing subgraphs', async () => {
+    const catalogClient = createCatalogClient();
+    const pricingClient = createPricingClient();
+    catalogClient.getProduct.mockResolvedValue({
+      id: 'product-1',
+      name: 'Plano Essencial',
+      category: 'subscription',
+    });
+    pricingClient.getProductPrice.mockResolvedValue({
+      id: 'product-1',
+      price: 4990,
+      currency: 'BRL',
+    });
+    const service = new AppService(catalogClient, pricingClient);
+
+    await expect(service.getProductSummary('product-1')).resolves.toEqual({
+      id: 'product-1',
+      name: 'Plano Essencial',
+      category: 'subscription',
+      price: 4990,
+      currency: 'BRL',
+      source: 'supergraph',
+    });
+    expect(catalogClient.getProduct).toHaveBeenCalledWith('product-1');
+    expect(pricingClient.getProductPrice).toHaveBeenCalledWith('product-1');
+  });
+
+  it('should fail with a clear domain error when the product is missing', async () => {
+    const catalogClient = createCatalogClient();
+    const pricingClient = createPricingClient();
+    catalogClient.getProduct.mockRejectedValue(new Error('not found'));
+    pricingClient.getProductPrice.mockResolvedValue({
+      id: 'missing',
+      price: 4990,
+      currency: 'BRL',
+    });
+    const service = new AppService(catalogClient, pricingClient);
+
+    await expect(service.getProductSummary('missing')).rejects.toThrow(NotFoundException);
+  });
+});

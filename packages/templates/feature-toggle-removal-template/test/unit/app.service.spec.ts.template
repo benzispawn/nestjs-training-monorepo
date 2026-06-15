@@ -1,0 +1,60 @@
+import { AppService } from '../../src/app.service';
+import { FeatureToggleClient } from '../../src/feature-toggle-client';
+
+describe('AppService feature toggle removal', () => {
+  const createClient = (): jest.Mocked<FeatureToggleClient> => ({
+    listFeatureToggles: jest.fn(),
+    getConsumerImpact: jest.fn(),
+  } as unknown as jest.Mocked<FeatureToggleClient>);
+
+  it('should expose the current legacy toggle before removal', async () => {
+    const client = createClient();
+    client.listFeatureToggles.mockResolvedValue({
+      toggles: [
+        {
+          key: 'legacy-recommendation-card',
+          enabled: true,
+          owner: 'frontend-home',
+          legacy: true,
+        },
+      ],
+    });
+    const service = new AppService(client);
+
+    await expect(service.listFeatureToggles()).resolves.toEqual({
+      toggles: [{
+      key: 'legacy-recommendation-card',
+      enabled: true,
+      owner: 'frontend-home',
+      legacy: true,
+      }],
+    });
+  });
+
+  it('should identify consumers impacted by the legacy toggle', async () => {
+    const client = createClient();
+    client.getConsumerImpact.mockResolvedValue({
+      impactedConsumers: [
+        {
+          toggle: 'legacy-recommendation-card',
+          consumer: 'frontend-home',
+          action: 'validar remocao do contrato e do codigo morto',
+        },
+      ],
+      hasLegacyToggle: true,
+    });
+    const service = new AppService(client);
+
+    await expect(service.getConsumerImpact()).resolves.toEqual({
+      impactedConsumers: [
+        {
+          toggle: 'legacy-recommendation-card',
+          consumer: 'frontend-home',
+          action: 'validar remocao do contrato e do codigo morto',
+        },
+      ],
+      hasLegacyToggle: true,
+    });
+    expect(client.getConsumerImpact).toHaveBeenCalledTimes(1);
+  });
+});

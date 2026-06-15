@@ -1,0 +1,9 @@
+# Criterios de aceite
+
+A trilha esta concluida quando:
+
+- `legacy-recommendation-card` nao aparece mais no contrato
+- codigo morto relacionado ao legado foi removido
+- testes unitarios e e2e refletem o contrato final
+- documentacao foi atualizada
+- impacto nos consumidores foi validado

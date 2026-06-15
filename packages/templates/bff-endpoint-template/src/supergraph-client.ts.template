@@ -1,0 +1,23 @@
+import { HttpJsonClient } from './http-json-client';
+
+export type ProductSummary = {
+  id: string;
+  name: string;
+  basePrice: number;
+  availableQuantity: number;
+  source: 'supergraph';
+};
+
+export class SupergraphClient {
+  private readonly http: HttpJsonClient;
+
+  constructor(
+    baseUrl = process.env.SUPERGRAPH_SERVICE_URL || 'http://localhost:4121',
+  ) {
+    this.http = new HttpJsonClient(baseUrl);
+  }
+
+  getProductSummary(id: string) {
+    return this.http.get<ProductSummary>(`/supergraph/products/${id}`);
+  }
+}

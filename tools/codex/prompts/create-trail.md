@@ -4,7 +4,7 @@ Crie ou complete uma trilha neste monorepo seguindo rigorosamente as convençõe
 
 - categoria da trilha
 - nome da trilha
-- tipo da trilha: rest, graphql, supergraph, testing ou generic
+- tipo da trilha: generic, rest, feature-toggle, feature-toggle-removal, supergraph ou bff-endpoint
 - objetivo pedagógico
 
 ## Regras
@@ -38,4 +38,5 @@ Crie ou complete uma trilha neste monorepo seguindo rigorosamente as convençõe
 
 ## Observação
 
-Se a trilha for supergraph, separar gateway e subgraphs claramente.
+Use `supergraph` para trilhas de alteracao ou criacao de query federada.
+Use `bff-endpoint` para trilhas de endpoint completo com orquestracao.

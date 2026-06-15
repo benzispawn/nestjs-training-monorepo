@@ -1,0 +1,37 @@
+# __TRAIL_TITLE__
+
+## Objetivo
+
+__TRAIL_OBJECTIVE__
+
+## O que sera praticado
+
+- criar um novo feature toggle
+- consumir um servico externo de toggles via HTTP
+- expor toggles para consumidores frontend
+- garantir fallback para toggle ausente
+- cobrir comportamento com testes unitarios e e2e
+
+## Executar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ run start:mocks
+npm --workspace @trails/__TRAIL_NAME__ run start:dev
+```
+
+## Testar
+
+```bash
+npm --workspace @trails/__TRAIL_NAME__ test
+```
+
+## Fluxo principal
+
+- `GET /feature-toggles`
+- `GET /feature-toggles/:key`
+- `POST /feature-toggles`
+
+## Servicos locais
+
+- BFF da trilha: `PORT`
+- servico de toggles: `FEATURE_TOGGLE_SERVICE_PORT`
