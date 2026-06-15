@@ -2,11 +2,12 @@ import { AppService } from '../../src/app.service';
 import { FeatureToggleClient } from '../../src/feature-toggle-client';
 
 describe('AppService feature toggle', () => {
-  const createClient = (): jest.Mocked<FeatureToggleClient> => ({
-    listFeatureToggles: jest.fn(),
-    getFeatureToggle: jest.fn(),
-    createFeatureToggle: jest.fn(),
-  } as unknown as jest.Mocked<FeatureToggleClient>);
+  const createClient = (): jest.Mocked<FeatureToggleClient> =>
+    ({
+      listFeatureToggles: jest.fn(),
+      getFeatureToggle: jest.fn(),
+      createFeatureToggle: jest.fn(),
+    }) as unknown as jest.Mocked<FeatureToggleClient>;
 
   it('should expose toggles from the external toggle service', async () => {
     const client = createClient();

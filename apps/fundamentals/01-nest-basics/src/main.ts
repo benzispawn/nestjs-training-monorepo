@@ -11,4 +11,4 @@ async function bootstrap() {
   console.log(`01-nest-basics running on http://localhost:${port}`);
 }
 
-bootstrap();
+void bootstrap();

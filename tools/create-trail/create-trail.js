@@ -9,9 +9,8 @@ function parseArgs(argv) {
 
     if (current.startsWith('--')) {
       const key = current.slice(2);
-      const value = argv[i + 1] && !argv[i + 1].startsWith('--')
-        ? argv[i + 1]
-        : true;
+      const value =
+        argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : true;
 
       args[key] = value;
 
@@ -41,6 +40,22 @@ function replaceTokens(content, tokens) {
   return Object.entries(tokens).reduce((acc, [key, value]) => {
     return acc.split(key).join(value);
   }, content);
+}
+
+function readRootPackageJson() {
+  return JSON.parse(readFile(path.join(process.cwd(), 'package.json')));
+}
+
+function getPackageVersion(packageJson, dependencyName) {
+  const version =
+    packageJson.dependencies?.[dependencyName] ??
+    packageJson.devDependencies?.[dependencyName];
+
+  if (!version) {
+    throw new Error(`Missing root dependency version for ${dependencyName}`);
+  }
+
+  return version;
 }
 
 function getRelativeTsconfigPath(targetDir) {
@@ -82,7 +97,9 @@ function validateInput(args) {
 
   if (missing.length) {
     console.error(`Missing required arguments: ${missing.join(', ')}`);
-    console.error('Usage: npm run generate:trail -- --category validation --name 01-zod-request-validation --type rest');
+    console.error(
+      'Usage: npm run generate:trail -- --category validation --name 01-zod-request-validation --type rest',
+    );
     process.exit(1);
   }
 
@@ -117,7 +134,9 @@ function listTemplateFiles(templateBase, currentDir = templateBase) {
       continue;
     }
 
-    const relativePath = path.relative(templateBase, entryPath).replace(/\\/g, '/');
+    const relativePath = path
+      .relative(templateBase, entryPath)
+      .replace(/\\/g, '/');
     result.push(relativePath);
   }
 
@@ -169,13 +188,45 @@ function createFromTemplate(args) {
   }
 
   createTrailStructure(targetDir);
+  const rootPackageJson = readRootPackageJson();
 
   const tokens = {
-    '__TRAIL_NAME__': trailName,
-    '__TRAIL_TITLE__': titleFromName(trailName),
-    '__TRAIL_DESCRIPTION__': descriptionFromType(type, trailName),
-    '__TRAIL_OBJECTIVE__': objectiveFromCategory(category, trailName),
-    '__TSCONFIG_RELATIVE_PATH__': getRelativeTsconfigPath(targetDir),
+    __TRAIL_NAME__: trailName,
+    __TRAIL_TITLE__: titleFromName(trailName),
+    __TRAIL_DESCRIPTION__: descriptionFromType(type, trailName),
+    __TRAIL_OBJECTIVE__: objectiveFromCategory(category, trailName),
+    __TSCONFIG_RELATIVE_PATH__: getRelativeTsconfigPath(targetDir),
+    __VERSION_ESLINT__: getPackageVersion(rootPackageJson, 'eslint'),
+    __VERSION_JEST__: getPackageVersion(rootPackageJson, 'jest'),
+    __VERSION_NEST_COMMON__: getPackageVersion(
+      rootPackageJson,
+      '@nestjs/common',
+    ),
+    __VERSION_NEST_CORE__: getPackageVersion(rootPackageJson, '@nestjs/core'),
+    __VERSION_NEST_TESTING__: getPackageVersion(
+      rootPackageJson,
+      '@nestjs/testing',
+    ),
+    __VERSION_REFLECT_METADATA__: getPackageVersion(
+      rootPackageJson,
+      'reflect-metadata',
+    ),
+    __VERSION_RXJS__: getPackageVersion(rootPackageJson, 'rxjs'),
+    __VERSION_SUPERTEST__: getPackageVersion(rootPackageJson, 'supertest'),
+    __VERSION_TAP__: getPackageVersion(rootPackageJson, 'tap'),
+    __VERSION_TS_JEST__: getPackageVersion(rootPackageJson, 'ts-jest'),
+    __VERSION_TS_NODE__: getPackageVersion(rootPackageJson, 'ts-node'),
+    __VERSION_TSCONFIG_PATHS__: getPackageVersion(
+      rootPackageJson,
+      'tsconfig-paths',
+    ),
+    __VERSION_TYPES_JEST__: getPackageVersion(rootPackageJson, '@types/jest'),
+    __VERSION_TYPES_NODE__: getPackageVersion(rootPackageJson, '@types/node'),
+    __VERSION_TYPES_SUPERTEST__: getPackageVersion(
+      rootPackageJson,
+      '@types/supertest',
+    ),
+    __VERSION_TYPESCRIPT__: getPackageVersion(rootPackageJson, 'typescript'),
   };
 
   const templateName = getTemplateName(type);

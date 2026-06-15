@@ -12,22 +12,27 @@
     "list:trails": "node tools/validate-repo/list-trails.js",
     "trail:info": "node tools/validate-repo/show-trail-info.js",
     "check:repo": "node tools/validate-repo/check-repo-structure.js",
+    "check:templates": "node tools/validate-repo/check-templates.js",
     "generate:trail": "node tools/create-trail/create-trail.js",
     "build": "npm run build --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
+    "lint": "eslint .",
     "test": "npm run test --workspaces --if-present",
-    "check": "npm run check --workspaces --if-present"
+    "check": "npm run check:repo && npm run lint && npm run build && npm test"
   },
   "engines": {
     "node": ">=22.0.0",
     "npm": ">=10.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@nestjs/cli": "^11.0.16",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.5.0",
     "@types/supertest": "^7.2.0",
-    "eslint": "^10.0.3",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.6.0",
     "jest": "^30.3.0",
     "prettier": "^3.8.1",
     "reflect-metadata": "^0.2.2",
@@ -37,7 +42,8 @@
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.61.1"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.16",

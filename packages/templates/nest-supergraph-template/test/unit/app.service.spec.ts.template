@@ -4,13 +4,15 @@ import { CatalogClient } from '../../src/catalog-client';
 import { PricingClient } from '../../src/pricing-client';
 
 describe('AppService supergraph', () => {
-  const createCatalogClient = (): jest.Mocked<CatalogClient> => ({
-    getProduct: jest.fn(),
-  } as unknown as jest.Mocked<CatalogClient>);
+  const createCatalogClient = (): jest.Mocked<CatalogClient> =>
+    ({
+      getProduct: jest.fn(),
+    }) as unknown as jest.Mocked<CatalogClient>;
 
-  const createPricingClient = (): jest.Mocked<PricingClient> => ({
-    getProductPrice: jest.fn(),
-  } as unknown as jest.Mocked<PricingClient>);
+  const createPricingClient = (): jest.Mocked<PricingClient> =>
+    ({
+      getProductPrice: jest.fn(),
+    }) as unknown as jest.Mocked<PricingClient>;
 
   it('should compose product summary from catalog and pricing subgraphs', async () => {
     const catalogClient = createCatalogClient();
@@ -50,6 +52,8 @@ describe('AppService supergraph', () => {
     });
     const service = new AppService(catalogClient, pricingClient);
 
-    await expect(service.getProductSummary('missing')).rejects.toThrow(NotFoundException);
+    await expect(service.getProductSummary('missing')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

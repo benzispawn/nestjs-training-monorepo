@@ -11,4 +11,4 @@ async function bootstrap() {
   console.log(`__TRAIL_NAME__ running on http://localhost:${port}`);
 }
 
-bootstrap();
+void bootstrap();

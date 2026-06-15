@@ -1,5 +1,8 @@
 import http, { Server } from 'node:http';
-import { CreateFeatureToggleInput, FeatureToggle } from './feature-toggle-client';
+import {
+  CreateFeatureToggleInput,
+  FeatureToggle,
+} from './feature-toggle-client';
 
 type RunningMockService = {
   url: string;
@@ -58,27 +61,40 @@ export async function startFeatureToggleService(
 
     if (request.method === 'GET' && url.pathname === '/feature-toggles') {
       sendJson(response, 200, {
-        toggles: [...toggles.values()].filter((toggle) => toggle.exposedToFrontend),
+        toggles: [...toggles.values()].filter(
+          (toggle) => toggle.exposedToFrontend,
+        ),
       });
       return;
     }
 
-    if (request.method === 'GET' && url.pathname.startsWith('/feature-toggles/')) {
-      const key = decodeURIComponent(url.pathname.replace('/feature-toggles/', ''));
+    if (
+      request.method === 'GET' &&
+      url.pathname.startsWith('/feature-toggles/')
+    ) {
+      const key = decodeURIComponent(
+        url.pathname.replace('/feature-toggles/', ''),
+      );
       const toggle = toggles.get(key);
 
-      sendJson(response, 200, toggle ?? {
-        key,
-        enabled: defaultFallback,
-        description: 'Fallback aplicado para toggle nao cadastrado.',
-        fallback: true,
-        exposedToFrontend: true,
-      });
+      sendJson(
+        response,
+        200,
+        toggle ?? {
+          key,
+          enabled: defaultFallback,
+          description: 'Fallback aplicado para toggle nao cadastrado.',
+          fallback: true,
+          exposedToFrontend: true,
+        },
+      );
       return;
     }
 
     if (request.method === 'POST' && url.pathname === '/feature-toggles') {
-      const input = await readRequestBody(request) as CreateFeatureToggleInput;
+      const input = (await readRequestBody(
+        request,
+      )) as CreateFeatureToggleInput;
       const toggle: FeatureToggle = {
         key: input.key,
         enabled: input.enabled ?? defaultFallback,
@@ -101,7 +117,8 @@ export async function startFeatureToggleService(
   await new Promise<void>((resolve) => server.listen(port, resolve));
 
   const address = server.address();
-  const resolvedPort = typeof address === 'object' && address ? address.port : port;
+  const resolvedPort =
+    typeof address === 'object' && address ? address.port : port;
 
   return {
     url: `http://127.0.0.1:${resolvedPort}`,
@@ -110,7 +127,7 @@ export async function startFeatureToggleService(
 }
 
 if (require.main === module) {
-  startFeatureToggleService().then((service) => {
+  void startFeatureToggleService().then((service) => {
     console.log(`Feature toggle service running at ${service.url}`);
   });
 }

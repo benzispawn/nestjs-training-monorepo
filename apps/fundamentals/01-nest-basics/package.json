@@ -7,7 +7,7 @@
     "start": "node dist/main.js",
     "start:dev": "ts-node -r tsconfig-paths/register src/main.ts",
     "build": "tsc -p tsconfig.json",
-    "lint": "node -e \"console.log('lint pending')\"",
+    "lint": "eslint .",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "jest --config jest.config.js",
     "test:e2e": "tap --disable-coverage test/e2e/**/*.test.ts",

@@ -29,7 +29,7 @@ const requiredPaths = [
   'tools/codex/prompts',
   'tools/codex/rules',
   'docs/getting-started',
-  'docs/conventions'
+  'docs/conventions',
 ];
 
 let hasError = false;
@@ -51,6 +51,7 @@ function validateRootPackage() {
     'list:trails',
     'trail:info',
     'check:repo',
+    'check:templates',
     'generate:trail',
     'build',
     'lint',
@@ -134,6 +135,19 @@ function validateTemplates() {
         reportMissing(relativePath);
       }
     }
+
+    const packageTemplatePath = path.join(templateDir, 'package.json.template');
+    if (pathExists(packageTemplatePath)) {
+      const packageTemplate = readJson(packageTemplatePath);
+
+      if (!packageTemplate.dependencies) {
+        reportInvalid(`Missing dependencies in ${packageTemplatePath}`);
+      }
+
+      if (!packageTemplate.devDependencies) {
+        reportInvalid(`Missing devDependencies in ${packageTemplatePath}`);
+      }
+    }
   }
 }
 
@@ -143,12 +157,14 @@ function listTrailDirs() {
 
   if (!fs.existsSync(appsDir)) return result;
 
-  const categories = fs.readdirSync(appsDir, { withFileTypes: true })
+  const categories = fs
+    .readdirSync(appsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory());
 
   for (const category of categories) {
     const categoryPath = path.join(appsDir, category.name);
-    const trails = fs.readdirSync(categoryPath, { withFileTypes: true })
+    const trails = fs
+      .readdirSync(categoryPath, { withFileTypes: true })
       .filter((entry) => entry.isDirectory());
 
     for (const trail of trails) {
@@ -182,7 +198,14 @@ function validateTrail(trail) {
   if (!pathExists(packageJsonPath)) return;
 
   const packageJson = readJson(packageJsonPath);
-  const requiredScripts = ['start', 'start:dev', 'build', 'lint', 'test', 'check'];
+  const requiredScripts = [
+    'start',
+    'start:dev',
+    'build',
+    'lint',
+    'test',
+    'check',
+  ];
 
   if (!packageJson.name || !packageJson.name.startsWith('@trails/')) {
     reportInvalid(`Invalid workspace name in apps/${trail}/package.json`);
@@ -190,7 +213,9 @@ function validateTrail(trail) {
 
   for (const scriptName of requiredScripts) {
     if (!packageJson.scripts || !packageJson.scripts[scriptName]) {
-      reportInvalid(`Missing script "${scriptName}" in apps/${trail}/package.json`);
+      reportInvalid(
+        `Missing script "${scriptName}" in apps/${trail}/package.json`,
+      );
     }
   }
 }

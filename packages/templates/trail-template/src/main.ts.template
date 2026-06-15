@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-async function bootstrap() {
+function bootstrap() {
   console.log('__TRAIL_NAME__ placeholder running');
 }
 

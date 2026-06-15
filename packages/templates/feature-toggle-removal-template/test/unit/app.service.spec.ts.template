@@ -2,10 +2,11 @@ import { AppService } from '../../src/app.service';
 import { FeatureToggleClient } from '../../src/feature-toggle-client';
 
 describe('AppService feature toggle removal', () => {
-  const createClient = (): jest.Mocked<FeatureToggleClient> => ({
-    listFeatureToggles: jest.fn(),
-    getConsumerImpact: jest.fn(),
-  } as unknown as jest.Mocked<FeatureToggleClient>);
+  const createClient = (): jest.Mocked<FeatureToggleClient> =>
+    ({
+      listFeatureToggles: jest.fn(),
+      getConsumerImpact: jest.fn(),
+    }) as unknown as jest.Mocked<FeatureToggleClient>;
 
   it('should expose the current legacy toggle before removal', async () => {
     const client = createClient();
@@ -22,12 +23,14 @@ describe('AppService feature toggle removal', () => {
     const service = new AppService(client);
 
     await expect(service.listFeatureToggles()).resolves.toEqual({
-      toggles: [{
-      key: 'legacy-recommendation-card',
-      enabled: true,
-      owner: 'frontend-home',
-      legacy: true,
-      }],
+      toggles: [
+        {
+          key: 'legacy-recommendation-card',
+          enabled: true,
+          owner: 'frontend-home',
+          legacy: true,
+        },
+      ],
     });
   });
 

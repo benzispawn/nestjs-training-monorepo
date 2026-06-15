@@ -39,3 +39,13 @@ Toda trilha deve ser simples, autocontida e objetiva.
 - `lint`
 - `test`
 - `check`
+
+## Validacao de templates
+
+Ao alterar templates ou o gerador, execute:
+
+```bash
+npm run check:templates
+```
+
+Esse comando gera cada tipo de trilha em `/tmp` e valida build, lint, testes unitarios e testes e2e.

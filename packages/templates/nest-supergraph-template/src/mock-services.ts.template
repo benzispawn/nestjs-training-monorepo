@@ -37,7 +37,8 @@ async function startServer(
   const server = http.createServer(handler);
   await new Promise<void>((resolve) => server.listen(port, resolve));
   const address = server.address();
-  const resolvedPort = typeof address === 'object' && address ? address.port : port;
+  const resolvedPort =
+    typeof address === 'object' && address ? address.port : port;
 
   return {
     url: `http://127.0.0.1:${resolvedPort}`,
@@ -98,7 +99,7 @@ export async function startSupergraphMockServices(
 }
 
 if (require.main === module) {
-  startSupergraphMockServices().then((services) => {
+  void startSupergraphMockServices().then((services) => {
     console.log(`Catalog subgraph running at ${services.catalog.url}`);
     console.log(`Pricing subgraph running at ${services.pricing.url}`);
   });

@@ -36,9 +36,16 @@ Usar nomes previsíveis quando aplicável:
 - TAP para testes e2e
 - Bruno apenas para exploração manual, sem automação
 
+## Lint
+
+- usar ESLint 9 com flat config no root
+- usar `npm run lint` antes de concluir mudancas de codigo
+- templates devem passar em `npm run check:templates` depois de gerados
+
 ## GraphQL Supergraph
 
 Quando a trilha envolver supergraph:
+
 - separar gateway e subgraphs claramente
 - documentar portas e fluxo
 - incluir explicação de composição

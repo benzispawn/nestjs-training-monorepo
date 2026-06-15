@@ -35,6 +35,16 @@ npm run check:repo
 npm run list:trails
 ```
 
+## Validacoes
+
+```bash
+npm run lint
+npm run check
+npm run check:templates
+```
+
+Use `check:templates` ao alterar templates ou o gerador de trilhas. Ele cria trilhas temporarias em `/tmp` e roda build, lint, testes unitarios e testes e2e para cada tipo suportado.
+
 ## Gerar trilha
 
 ```bash

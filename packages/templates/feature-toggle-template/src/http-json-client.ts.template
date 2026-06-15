@@ -1,13 +1,13 @@
 export class HttpJsonClient {
   constructor(private readonly baseUrl: string) {}
 
-  async get<TResponse>(path: string): Promise<TResponse> {
+  get<TResponse>(path: string): Promise<TResponse> {
     return this.request<TResponse>(path, {
       method: 'GET',
     });
   }
 
-  async post<TResponse>(path: string, body: unknown): Promise<TResponse> {
+  post<TResponse>(path: string, body: unknown): Promise<TResponse> {
     return this.request<TResponse>(path, {
       method: 'POST',
       headers: {

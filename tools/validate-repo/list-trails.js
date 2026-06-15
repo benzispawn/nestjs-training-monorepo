@@ -8,12 +8,14 @@ function listTrailDirs(baseDir) {
 
   if (!fs.existsSync(baseDir)) return result;
 
-  const categories = fs.readdirSync(baseDir, { withFileTypes: true })
+  const categories = fs
+    .readdirSync(baseDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory());
 
   for (const category of categories) {
     const categoryPath = path.join(baseDir, category.name);
-    const trails = fs.readdirSync(categoryPath, { withFileTypes: true })
+    const trails = fs
+      .readdirSync(categoryPath, { withFileTypes: true })
       .filter((entry) => entry.isDirectory());
 
     for (const trail of trails) {

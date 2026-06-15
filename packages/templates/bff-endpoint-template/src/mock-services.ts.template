@@ -37,7 +37,8 @@ async function startServer(
   const server = http.createServer(handler);
   await new Promise<void>((resolve) => server.listen(port, resolve));
   const address = server.address();
-  const resolvedPort = typeof address === 'object' && address ? address.port : port;
+  const resolvedPort =
+    typeof address === 'object' && address ? address.port : port;
 
   return {
     url: `http://127.0.0.1:${resolvedPort}`,
@@ -51,44 +52,56 @@ export async function startBffMockServices(
     featureToggles: Number(process.env.FEATURE_TOGGLE_SERVICE_PORT || 4122),
   },
 ): Promise<RunningBffMocks> {
-  const supergraph = await startServer(ports.supergraph, (request, response) => {
-    const url = new URL(request.url || '/', 'http://localhost');
+  const supergraph = await startServer(
+    ports.supergraph,
+    (request, response) => {
+      const url = new URL(request.url || '/', 'http://localhost');
 
-    if (request.method === 'GET' && url.pathname === '/supergraph/products/offer-1') {
-      sendJson(response, 200, {
-        id: 'offer-1',
-        name: 'Plano Pro',
-        basePrice: 10000,
-        availableQuantity: 3,
-        source: 'supergraph',
+      if (
+        request.method === 'GET' &&
+        url.pathname === '/supergraph/products/offer-1'
+      ) {
+        sendJson(response, 200, {
+          id: 'offer-1',
+          name: 'Plano Pro',
+          basePrice: 10000,
+          availableQuantity: 3,
+          source: 'supergraph',
+        });
+        return;
+      }
+
+      sendJson(response, 404, {
+        code: 'PRODUCT_NOT_FOUND',
+        message: 'Produto nao encontrado no supergraph.',
       });
-      return;
-    }
+    },
+  );
 
-    sendJson(response, 404, {
-      code: 'PRODUCT_NOT_FOUND',
-      message: 'Produto nao encontrado no supergraph.',
-    });
-  });
+  const featureToggles = await startServer(
+    ports.featureToggles,
+    (request, response) => {
+      const url = new URL(request.url || '/', 'http://localhost');
 
-  const featureToggles = await startServer(ports.featureToggles, (request, response) => {
-    const url = new URL(request.url || '/', 'http://localhost');
+      if (
+        request.method === 'GET' &&
+        url.pathname === '/feature-toggles/discounts-enabled'
+      ) {
+        sendJson(response, 200, {
+          key: 'discounts-enabled',
+          enabled: true,
+          fallback: false,
+        });
+        return;
+      }
 
-    if (request.method === 'GET' && url.pathname === '/feature-toggles/discounts-enabled') {
       sendJson(response, 200, {
-        key: 'discounts-enabled',
-        enabled: true,
-        fallback: false,
+        key: url.pathname.replace('/feature-toggles/', ''),
+        enabled: false,
+        fallback: true,
       });
-      return;
-    }
-
-    sendJson(response, 200, {
-      key: url.pathname.replace('/feature-toggles/', ''),
-      enabled: false,
-      fallback: true,
-    });
-  });
+    },
+  );
 
   return {
     supergraph,
@@ -101,8 +114,10 @@ export async function startBffMockServices(
 }
 
 if (require.main === module) {
-  startBffMockServices().then((services) => {
+  void startBffMockServices().then((services) => {
     console.log(`Supergraph service running at ${services.supergraph.url}`);
-    console.log(`Feature toggle service running at ${services.featureToggles.url}`);
+    console.log(
+      `Feature toggle service running at ${services.featureToggles.url}`,
+    );
   });
 }

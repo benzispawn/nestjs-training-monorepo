@@ -78,7 +78,8 @@ export async function startFeatureToggleService(
   await new Promise<void>((resolve) => server.listen(port, resolve));
 
   const address = server.address();
-  const resolvedPort = typeof address === 'object' && address ? address.port : port;
+  const resolvedPort =
+    typeof address === 'object' && address ? address.port : port;
 
   return {
     url: `http://127.0.0.1:${resolvedPort}`,
@@ -87,7 +88,7 @@ export async function startFeatureToggleService(
 }
 
 if (require.main === module) {
-  startFeatureToggleService().then((service) => {
+  void startFeatureToggleService().then((service) => {
     console.log(`Feature toggle service running at ${service.url}`);
   });
 }

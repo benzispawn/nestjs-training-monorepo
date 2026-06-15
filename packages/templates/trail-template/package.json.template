@@ -7,10 +7,23 @@
     "start": "node dist/main.js",
     "start:dev": "ts-node -r tsconfig-paths/register src/main.ts",
     "build": "tsc -p tsconfig.json",
-    "lint": "node -e \"console.log('lint pending')\"",
+    "lint": "eslint .",
     "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "jest --config jest.config.js --passWithNoTests",
     "test:e2e": "node -e \"console.log('e2e tests pending')\"",
     "check": "npm run lint && npm run test"
+  },
+  "dependencies": {
+    "reflect-metadata": "__VERSION_REFLECT_METADATA__"
+  },
+  "devDependencies": {
+    "@types/jest": "__VERSION_TYPES_JEST__",
+    "@types/node": "__VERSION_TYPES_NODE__",
+    "eslint": "__VERSION_ESLINT__",
+    "jest": "__VERSION_JEST__",
+    "ts-jest": "__VERSION_TS_JEST__",
+    "ts-node": "__VERSION_TS_NODE__",
+    "tsconfig-paths": "__VERSION_TSCONFIG_PATHS__",
+    "typescript": "__VERSION_TYPESCRIPT__"
   }
 }

@@ -1,11 +1,12 @@
 import t from 'tap';
 import request from 'supertest';
+import { App as SupertestApp } from 'supertest/types';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../../src/app.module';
 import { startFeatureToggleService } from '../../src/mock-services';
 
-t.test('GET /feature-toggles exposes frontend toggles', async (t) => {
+void t.test('GET /feature-toggles exposes frontend toggles', async (t) => {
   const featureToggleService = await startFeatureToggleService(0);
   process.env.FEATURE_TOGGLE_SERVICE_URL = featureToggleService.url;
 
@@ -15,13 +16,14 @@ t.test('GET /feature-toggles exposes frontend toggles', async (t) => {
 
   const app: INestApplication = moduleRef.createNestApplication();
   await app.init();
+  const server = app.getHttpServer() as SupertestApp;
   t.teardown(async () => {
     await app.close();
     await featureToggleService.close();
     delete process.env.FEATURE_TOGGLE_SERVICE_URL;
   });
 
-  const response = await request(app.getHttpServer()).get('/feature-toggles');
+  const response = await request(server).get('/feature-toggles');
 
   t.equal(response.status, 200);
   t.same(response.body.toggles[0].key, 'new-checkout');
